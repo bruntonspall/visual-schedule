@@ -1,0 +1,56 @@
+<html>
+<head>
+	<title>iPad Test</title>
+</head>
+<body data-schedule={{schedule.key()}}>
+	<div id="container">
+		<div id="picturebar">
+			{% for picture in library %}
+			<img class="picture" src="{{picture.full_size_image}}" width="160" data-id="{{picture.key()}}">
+			{% endfor %}
+			<a href="/picture" class="btn">Add Picture</a>
+		</div>
+		<div id="schedule">&nbsp;</div>
+		<div id="msgs">
+		</div>
+	</div>
+</body>
+<link rel="stylesheet" href="/static/css/html5reset.css">
+<link rel="stylesheet" href="/static/css/ui-lightness/jquery-ui-1.8.20.custom.css">
+<script type="text/javascript" src="/static/js/jquery-1.7.2.min.js"></script>
+<script type="text/javascript" src="/static/js/jquery-ui-1.8.20.custom.min.js"></script>
+<script type="text/javascript" src="/static/js/main.js"></script>
+
+<style type="text/css">
+#picturebar {
+	background: #e0e0e0;
+	border-right: 3px #a0a0a0 solid;
+	margin-right: 5px;
+	width: 180px;
+	overflow: vertical;
+}
+#schedule {
+	width: 600px;
+	background: #c0c0c0;
+}
+#picturebar img {
+	border: 1px black solid;
+	padding: 1px;
+	margin: 3px;
+}
+#msgs {
+	position: fixed;
+	bottom: 0;
+	height: 60px;
+	overflow: none;	
+	width: 90%;
+	background: #e0e0e0;	
+}
+.btn {
+	padding: 3px;
+	border: 1px black solid;
+	margin: 2px;
+	border-radius: 4px;
+	background: #a0a0a0;
+}
+</style>
