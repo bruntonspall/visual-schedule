@@ -12,7 +12,6 @@ updateSize = () ->
 	log "Doc geometry is #{screen.width} x #{screen.height}"
 
 handleScheduleUpdate = (event, ui) ->
-	console.log ui.helper
 	log "Dropped #{ui.helper.data('id')} at #{ui.position.left},#{ui.position.top} or (#{ui.offset.left},#{ui.offset.left})"
 	$(this).append($(ui.helper).clone());
 	schedule_key = $('body').data('schedule')
@@ -36,7 +35,5 @@ $ () ->
 	$.getJSON "/schedule/#{schedule_key}", (data) -> 
 		for p in data.pictures
 			domp = $(".picture").filter () -> $(this).data('id') == p.id
-			log domp
 			domp.css top: p.top, left: p.left
-		log data
 		

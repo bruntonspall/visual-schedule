@@ -135,6 +135,14 @@ class MainHandler(webapp2.RequestHandler):
             }))
 
 
+class LogHandler(webapp2.RequestHandler):
+    def post(self):
+        self.get()
+
+    def get(self):
+        logging.info(self.request.get('msg'))
+
+
 class SignupHandler(webapp2.RequestHandler):
     def get(self):
         self.redirect(google.appengine.api.users.create_login_url())
@@ -142,6 +150,7 @@ class SignupHandler(webapp2.RequestHandler):
 
 app = webapp2.WSGIApplication([
         ('/', MainHandler),
+        ('/log', LogHandler),
         ('/signup', SignupHandler),
         ('/schedule/(.*)', ScheduleApiHandler),
         ('/picture', PictureAdminHandler),

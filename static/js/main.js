@@ -19,7 +19,6 @@
 
   handleScheduleUpdate = function(event, ui) {
     var schedule_key;
-    console.log(ui.helper);
     log("Dropped " + (ui.helper.data('id')) + " at " + ui.position.left + "," + ui.position.top + " or (" + ui.offset.left + "," + ui.offset.left + ")");
     $(this).append($(ui.helper).clone());
     schedule_key = $('body').data('schedule');
@@ -44,20 +43,20 @@
       $("#picturebar").hide();
     }
     return $.getJSON("/schedule/" + schedule_key, function(data) {
-      var domp, p, _i, _len, _ref;
+      var domp, p, _i, _len, _ref, _results;
       _ref = data.pictures;
+      _results = [];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         p = _ref[_i];
         domp = $(".picture").filter(function() {
           return $(this).data('id') === p.id;
         });
-        log(domp);
-        domp.css({
+        _results.push(domp.css({
           top: p.top,
           left: p.left
-        });
+        }));
       }
-      return log(data);
+      return _results;
     });
   });
 
