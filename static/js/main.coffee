@@ -1,5 +1,6 @@
 log = (msg) ->
 	console.log msg
+	$.post "/log?msg=#{msg}", {}
 	$('#msgs').prepend "<p>#{msg}</p>"
 	$('#msgs').slideDown 333
 	setTimeout (() -> 
@@ -30,6 +31,8 @@ $ () ->
 		
 	schedule_key = $('body').data('schedule')
 	log "Schedule is #{schedule_key}"
+	if ((navigator.userAgent.indexOf('iPhone') != -1) || (navigator.userAgent.indexOf('iPod') != -1) || (navigator.userAgent.indexOf('iPad') != -1))
+		$("#picturebar").hide()
 	$.getJSON "/schedule/#{schedule_key}", (data) -> 
 		for p in data.pictures
 			domp = $(".picture").filter () -> $(this).data('id') == p.id

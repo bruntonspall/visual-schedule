@@ -4,6 +4,7 @@
 
   log = function(msg) {
     console.log(msg);
+    $.post("/log?msg=" + msg, {});
     $('#msgs').prepend("<p>" + msg + "</p>");
     $('#msgs').slideDown(333);
     return setTimeout((function() {
@@ -39,6 +40,9 @@
     $("#schedule").droppable();
     schedule_key = $('body').data('schedule');
     log("Schedule is " + schedule_key);
+    if ((navigator.userAgent.indexOf('iPhone') !== -1) || (navigator.userAgent.indexOf('iPod') !== -1) || (navigator.userAgent.indexOf('iPad') !== -1)) {
+      $("#picturebar").hide();
+    }
     return $.getJSON("/schedule/" + schedule_key, function(data) {
       var domp, p, _i, _len, _ref;
       _ref = data.pictures;
