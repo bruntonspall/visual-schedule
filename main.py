@@ -12,9 +12,13 @@ import jinja2
 import webapp2
 import json
 import os
+import re
+
+ipadRegex = re.compile(r"iPad|iPhone")
 
 jinj = jinja2.Environment(
     loader=jinja2.FileSystemLoader(os.path.join(os.path.dirname(__file__), 'templates')))
+
 
 def login_required(func):
     def do_func(self, *args, **kwargs):
@@ -126,33 +130,39 @@ def get_schedule(user):
     return schedule
 
 
-class MainHandler(webapp2.RequestHandler):
+class UserSetupHandler(webapp2.RequestHandler):
     def get(self):
-        logging.info(self.request.host)
         current_user = google.appengine.api.users.get_current_user()
         if not current_user:
             self.redirect('/signup')
-        user = get_user_details(current_user)
-        if not user:
-            user = UserDetails(user=current_user)
-            user.put()
-            logging.info("Setting up default library")
-            pictures = [
-                Picture(owner=user, title="Kitten jumping", caption="Kitten jumping", full_size_image='http://' + self.request.host + '/static/img/kitten1.jpg'),
-                Picture(owner=user, title="Kitten running", caption="Kitten running", full_size_image='http://' + self.request.host + '/static/img/kitten2.jpg'),
-                Picture(owner=user, title="Ginger kitten", caption="Ginger kitten", full_size_image='http://' + self.request.host + '/static/img/kitten3.jpg')
-            ]
-            db.put(pictures)
+        user = UserDetails(user=current_user)
+        user.put()
+        logging.info("Setting up default library")
+        pictures = [
+            Picture(owner=user, title="Kitten jumping", caption="Kitten jumping", full_size_image='http://' + self.request.host + '/static/img/kitten1.jpg'),
+            Picture(owner=user, title="Kitten running", caption="Kitten running", full_size_image='http://' + self.request.host + '/static/img/kitten2.jpg'),
+            Picture(owner=user, title="Ginger kitten", caption="Ginger kitten", full_size_image='http://' + self.request.host + '/static/img/kitten3.jpg')
+        ]
+        db.put(pictures)
 
-        schedule = get_schedule(user)
+
+class MainHandler(webapp2.RequestHandler):
+    @login_required
+    def get(self):
+        logging.info(self.request.environ)
+        if ipadRegex.search(self.request.environ["HTTP_USER_AGENT"]):
+            self.redirect("/display")
+
+        schedule = get_schedule(self.user)
 
         logging.info("Got request for /")
         template = jinj.get_template('index.html')
         self.response.out.write(template.render(
             {
-            'user': user,
+            'user': self.user,
             'schedule': schedule,
-            'library': Picture.all().filter('owner =', user)
+            'library': Picture.all().filter('owner =', self.user),
+            'logout_url': google.appengine.api.users.create_logout_url("/")
             }))
 
 
