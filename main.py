@@ -51,6 +51,12 @@ class PicturePlacement(db.Model):
     schedule = db.ReferenceProperty(Schedule, collection_name='pictures')
     position = db.ListProperty(int)
 
+    @staticmethod
+    def get_or_create(key, schedule):
+        logging.info("Looking for placement %s" % (key))
+        placement = PicturePlacement.get(key)
+        return placement
+
 
 class PictureAdminHandler(blobstore_handlers.BlobstoreUploadHandler):
     def get(self):
@@ -77,12 +83,6 @@ class PictureAdminHandler(blobstore_handlers.BlobstoreUploadHandler):
         self.redirect('/')
 
 
-def get_picture_placement(picture, schedule):
-    pic = Picture.get(picture)
-    placement = PicturePlacement.all().filter('picture =', pic).get() or PicturePlacement(schedule=schedule, picture=pic)
-    return placement
-
-
 class ScheduleApiHandler(webapp2.RequestHandler):
     def get(self, schedule):
         schedule = Schedule.get(schedule)
@@ -90,7 +90,8 @@ class ScheduleApiHandler(webapp2.RequestHandler):
         doc['id'] = str(schedule.key())
         doc['lastmodified'] = schedule.last_modified.isoformat()
         doc['pictures'] = [
-        {'id': str(p.picture.key()),
+        {'id': str(p.key()),
+        'picture': str(p.picture.key()),
         'url': p.picture.full_size_image,
         'left': p.position[0],
         'top': p.position[1]}
@@ -100,10 +101,16 @@ class ScheduleApiHandler(webapp2.RequestHandler):
     def post(self, schedule):
         logging.info(self.request.params)
         left, top = self.request.get('left'), self.request.get('top')
+        key = self.request.get('key')
         schedule = Schedule.get(schedule)
-        placement = get_picture_placement(self.request.get('key'), schedule)
+        if self.request.get('type') == "placement":
+            placement = PicturePlacement.get_or_create(key, schedule)
+        else:
+            placement = PicturePlacement(schedule=schedule, picture=Picture.get(key))
+
         placement.position = [int(i) for i in [left, top]]
         db.put([placement, schedule])
+        self.response.out.write(json.dumps(str(placement.key())))
 
 
 def get_user_details(user):
