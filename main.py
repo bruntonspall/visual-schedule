@@ -26,16 +26,24 @@ def login_required(func):
         current_user = google.appengine.api.users.get_current_user()
         if not current_user:
             self.redirect('/signup')
-        self.user = get_user_details(current_user)
+        self.user = UserDetails.get_current()
         if not self.user:
             self.redirect('/setup')
-        func(self, *args, **kwargs)
+        return func(self, *args, **kwargs)
 
     return do_func
 
 
 class UserDetails(db.Model):
     user = db.UserProperty()
+
+    @staticmethod
+    def get_for_user(user):
+        return UserDetails.all().filter('user =', user).get()
+
+    @staticmethod
+    def get_current():
+        return UserDetails.all().filter('user =', google.appengine.api.users.get_current_user()).get()
 
 
 class Picture(db.Model):
@@ -48,6 +56,15 @@ class Picture(db.Model):
 class Schedule(db.Model):
     owner = db.ReferenceProperty(UserDetails)
     last_modified = db.DateTimeProperty(auto_now=True)
+
+    @staticmethod
+    def get_for_user(user):
+        schedule = Schedule.all().filter('owner =', user).get()
+        if not schedule:
+            schedule = Schedule(owner=user)
+            schedule.put()
+        logging.info(",".join([str(pic) for pic in schedule.pictures]))
+        return schedule
 
 
 class PicturePlacement(db.Model):
@@ -63,6 +80,7 @@ class PicturePlacement(db.Model):
 
 
 class PictureAdminHandler(blobstore_handlers.BlobstoreUploadHandler):
+    @login_required
     def get(self):
         upload_url = blobstore.create_upload_url('/picture')
         template = jinj.get_template('pictureadmin.html')
@@ -72,22 +90,19 @@ class PictureAdminHandler(blobstore_handlers.BlobstoreUploadHandler):
             }
             ))
 
+    @login_required
     def post(self):
-        current_user = google.appengine.api.users.get_current_user()
-        if not current_user:
-            self.redirect('/signup')
-        user = get_user_details(current_user)
-
         uploaded_files = self.get_uploads()
         blob_info = uploaded_files[0]
         pic = Picture(title="title", caption="caption")
-        pic.owner = user
+        pic.owner = self.user
         pic.full_size_image = images.get_serving_url(blob_key=blob_info)
         pic.put()
         self.redirect('/')
 
 
 class ScheduleApiHandler(webapp2.RequestHandler):
+    @login_required
     def get(self, schedule):
         schedule = Schedule.get(schedule)
         doc = {}
@@ -102,6 +117,7 @@ class ScheduleApiHandler(webapp2.RequestHandler):
         for p in schedule.pictures]
         self.response.out.write(json.dumps(doc))
 
+    @login_required
     def post(self, schedule):
         logging.info(self.request.params)
         left, top = self.request.get('left'), self.request.get('top')
@@ -115,19 +131,6 @@ class ScheduleApiHandler(webapp2.RequestHandler):
         placement.position = [int(i) for i in [left, top]]
         db.put([placement, schedule])
         self.response.out.write(json.dumps(str(placement.key())))
-
-
-def get_user_details(user):
-    return UserDetails.all().filter('user =', user).get()
-
-
-def get_schedule(user):
-    schedule = Schedule.all().filter('owner =', user).get()
-    if not schedule:
-        schedule = Schedule(owner=user)
-        schedule.put()
-    logging.info(",".join([str(pic) for pic in schedule.pictures]))
-    return schedule
 
 
 class UserSetupHandler(webapp2.RequestHandler):
@@ -153,7 +156,7 @@ class MainHandler(webapp2.RequestHandler):
         if ipadRegex.search(self.request.environ["HTTP_USER_AGENT"]):
             self.redirect("/display")
 
-        schedule = get_schedule(self.user)
+        schedule = Schedule.get_for_user(self.user)
 
         logging.info("Got request for /")
         template = jinj.get_template('index.html')
@@ -169,7 +172,7 @@ class MainHandler(webapp2.RequestHandler):
 class DisplayHandler(webapp2.RequestHandler):
     @login_required
     def get(self):
-        schedule = get_schedule(self.user)
+        schedule = Schedule.get_for_user(self.user)
 
         template = jinj.get_template('schedule.html')
         self.response.out.write(template.render(
