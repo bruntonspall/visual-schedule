@@ -103,8 +103,8 @@ class PictureAdminHandler(blobstore_handlers.BlobstoreUploadHandler):
 
 class ScheduleApiHandler(webapp2.RequestHandler):
     @login_required
-    def get(self, schedule):
-        schedule = Schedule.get(schedule)
+    def get(self, schedulekey):
+        schedule = Schedule.get(schedulekey)
         doc = {}
         doc['id'] = str(schedule.key())
         doc['lastmodified'] = schedule.last_modified.isoformat()
@@ -116,6 +116,36 @@ class ScheduleApiHandler(webapp2.RequestHandler):
         'top': p.position[1]}
         for p in schedule.pictures]
         self.response.out.write(json.dumps(doc))
+
+    @login_required
+    def post(self, schedulekey):
+        logging.info(self.request.params)
+        left, top = self.request.get('left'), self.request.get('top')
+        key = self.request.get('key')
+        schedule = Schedule.get(schedulekey)
+        if self.request.get('type') == "placement":
+            placement = PicturePlacement.get_or_create(key, schedule)
+        else:
+            placement = PicturePlacement(schedule=schedule, picture=Picture.get(key))
+
+        placement.position = [int(i) for i in [left, top]]
+        db.put([placement, schedule])
+        self.response.out.write(json.dumps(str(placement.key())))
+
+
+class ApiPlacementHandler(webapp2.RequestHandler):
+    @login_required
+    def get(self, schedulekey, placementkey):
+        placement = PicturePlacement.get(placementkey)
+        doc = {}
+        doc['id'] = str(placement.key())
+        doc['picture'] = placement.picture.key()
+        self.response.out.write(json.dumps(doc))
+
+    @login_required
+    def delete(self, schedulekey, placementkey):
+        placement = PicturePlacement.get(placementkey)
+        db.delete(placement)
 
     @login_required
     def post(self, schedule):
@@ -131,7 +161,6 @@ class ScheduleApiHandler(webapp2.RequestHandler):
         placement.position = [int(i) for i in [left, top]]
         db.put([placement, schedule])
         self.response.out.write(json.dumps(str(placement.key())))
-
 
 class UserSetupHandler(webapp2.RequestHandler):
     def get(self):
@@ -194,12 +223,14 @@ class SignupHandler(webapp2.RequestHandler):
     def get(self):
         self.redirect(google.appengine.api.users.create_login_url())
 
+from webapp2 import Route
 
 app = webapp2.WSGIApplication([
         ('/', MainHandler),
         ('/display', DisplayHandler),
         ('/log', LogHandler),
         ('/signup', SignupHandler),
-        ('/schedule/(.*)', ScheduleApiHandler),
+        Route('/schedule/<schedulekey>', ScheduleApiHandler),
+        Route('/schedule/<schedulekey>/<placementkey>', ApiPlacementHandler),
         ('/picture', PictureAdminHandler),
     ], debug=True)

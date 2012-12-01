@@ -7,11 +7,8 @@ log = (msg) ->
 		$('.msgs').slideUp 666
 		), 2000
 
-updateSize = () ->
-	log "Screen geometry is #{document.width} x #{document.height}"
-	log "Doc geometry is #{screen.width} x #{screen.height}"
-
 handleScheduleUpdate = (event, ui) ->
+	log $(this)
 	domp = $(".schedule .picture").filter () -> $(this).data('key') == ui.helper.data('key')
 	domp.css top: ui.position.top, left: ui.position.left
 
@@ -22,7 +19,6 @@ handleScheduleUpdate = (event, ui) ->
 		"left": ui.position.left,
 		"top": ui.position.top,
 		(data) ->
-			log data
 			if $(ui.helper).data('type') == 'picture'
 				newpic = $(ui.helper).clone()
 				newpic.attr('data-type', 'placement')
@@ -36,20 +32,31 @@ handleScheduleUpdate = (event, ui) ->
 
 $ () -> 
 	$('#msgs').hide()
-	updateSize()
 
 	$('.picture').draggable
-			stop: handleScheduleUpdate,
+			# stop: handleScheduleUpdate,
 			helper: "clone",
 			opacity: 0.40
-	$("#schedule").droppable()
+	$(".schedule").droppable
+			accept: ".picture",
+			drop: handleScheduleUpdate
+	$(".picturebar").droppable
+			accept: ".picture",
+			drop: (event, ui) ->
+				placementkey = ui.helper.data('key')
+				original = $(".schedule .picture").filter () -> $(this).data('key') == ui.helper.data('key')
+				$.ajax 
+					type: 'DELETE',
+					url: "/schedule/#{schedule_key}/#{placementkey}",
+					success: (data) ->
+						original.remove()
+
+
 		
 	schedule_key = $('body').data('schedule')
 	log "Schedule is #{schedule_key}"
 	$.getJSON "/schedule/#{schedule_key}", (data) -> 
-		log data
 		for p in data.pictures
-			log p
 			domp = $(".schedule .picture").filter () -> $(this).data('key') == p.id
-			domp.css border: "2px red solid", top: p.top, left: p.left
+			domp.css top: p.top, left: p.left
 		

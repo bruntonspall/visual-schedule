@@ -1,3 +1,11 @@
 .schedule .picture {
 	position: absolute;
 }
+
+.picturebar {
+	border-right: 1px black solid;
+}
+
+.schedule {
+	height: 100%;
+}

@@ -22,16 +22,18 @@
 			</div>
 		</div>
 		<div class="row">
-			<div class="picturebar span2">
-				{% for picture in library %}
-				<img class="picture" src="{{picture.full_size_image}}" width="160" data-key="{{picture.key()}}" data-type="picture">
-				{% endfor %}
-				<img src="http://placekitten.com/g/160/158" alt="placeholder+image">
-				<img src="http://placekitten.com/g/160/159" alt="placeholder+image">
-				<img src="http://placekitten.com/g/160/160" alt="placeholder+image">
+			<div class="span2">
+				<div class="picturebar">
+					{% for picture in library %}
+					<img class="picture img-polaroid" src="{{picture.full_size_image}}" width="160" data-key="{{picture.key()}}" data-type="picture">
+					{% endfor %}
+					<img src="http://placekitten.com/g/160/158" alt="placeholder+image">
+					<img src="http://placekitten.com/g/160/159" alt="placeholder+image">
+					<img src="http://placekitten.com/g/160/160" alt="placeholder+image">
+				</div>
 			</div><div class="schedule span10">
 				{% for placement in schedule.pictures %}
-					<img class="picture" src="{{placement.picture.full_size_image}}" width="160" data-key="{{placement.key()}}" data-type="placement">
+					<img class="picture img-polaroid" src="{{placement.picture.full_size_image}}" width="160" data-key="{{placement.key()}}" data-type="placement">
 				{% endfor %}
 			</div>
 		</div>
