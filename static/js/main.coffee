@@ -25,13 +25,15 @@ $ () ->
 	updateSize()
 
 	$('.picture').draggable
-			stop: handleScheduleUpdate
+			stop: handleScheduleUpdate,
+			helper: "clone",
+			opacity: 0.40
 	$("#schedule").droppable()
 		
 	schedule_key = $('body').data('schedule')
 	log "Schedule is #{schedule_key}"
-	$.getJSON "/schedule/#{schedule_key}", (data) -> 
-		for p in data.pictures
-			domp = $(".picture").filter () -> $(this).data('id') == p.id
-			domp.css top: p.top, left: p.left
+	# $.getJSON "/schedule/#{schedule_key}", (data) -> 
+	# 	for p in data.pictures
+	# 		domp = $(".picture").filter () -> $(this).data('id') == p.id
+	# 		domp.css top: p.top, left: p.left
 		

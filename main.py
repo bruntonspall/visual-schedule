@@ -16,6 +16,19 @@ import os
 jinj = jinja2.Environment(
     loader=jinja2.FileSystemLoader(os.path.join(os.path.dirname(__file__), 'templates')))
 
+def login_required(func):
+    def do_func(self, *args, **kwargs):
+        logging.info(self.request.host)
+        current_user = google.appengine.api.users.get_current_user()
+        if not current_user:
+            self.redirect('/signup')
+        self.user = get_user_details(current_user)
+        if not self.user:
+            self.redirect('/setup')
+        func(self, *args, **kwargs)
+
+    return do_func
+
 
 class UserDetails(db.Model):
     user = db.UserProperty()
@@ -102,6 +115,7 @@ def get_schedule(user):
     if not schedule:
         schedule = Schedule(owner=user)
         schedule.put()
+    logging.info(",".join([str(pic) for pic in schedule.pictures]))
     return schedule
 
 
@@ -135,6 +149,19 @@ class MainHandler(webapp2.RequestHandler):
             }))
 
 
+class DisplayHandler(webapp2.RequestHandler):
+    @login_required
+    def get(self):
+        schedule = get_schedule(self.user)
+
+        template = jinj.get_template('schedule.html')
+        self.response.out.write(template.render(
+            {
+            'user': self.user,
+            'schedule': schedule,
+            }))
+
+
 class LogHandler(webapp2.RequestHandler):
     def post(self):
         self.get()
@@ -150,6 +177,7 @@ class SignupHandler(webapp2.RequestHandler):
 
 app = webapp2.WSGIApplication([
         ('/', MainHandler),
+        ('/display', DisplayHandler),
         ('/log', LogHandler),
         ('/signup', SignupHandler),
         ('/schedule/(.*)', ScheduleApiHandler),
