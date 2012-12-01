@@ -1,20 +1,15 @@
 <html>
 <head>
 	<title>iPad Test</title>
+	<link rel="stylesheet" href="/static/css/html5reset.css">
+	<link rel="stylesheet" href="/static/css/styling.css">
 </head>
 <body data-schedule={{schedule.key()}}>
 	<div id="container">
 		<div class="schedule">
-			{% for picture in schedule.pictures %}
-				<img class="picture" src="{{picture.picture.full_size_image}}" width="160" data-id="{{picture.key()}}">
+			{% for placement in schedule.pictures %}
+				<img class="picture" src="{{placement.picture.full_size_image}}" width="160" data-key="{{placement.key()}}" data-type="placement" style="left: {{placement.position.0}}px; top: {{placement.position.1}}px">
 			{% endfor %}
-			<img src="http://placekitten.com/g/160/160" alt="placeholder+image">
 		</div>
 	</div>
 </body>
-<link rel="stylesheet" href="/static/css/html5reset.css">
-<link rel="stylesheet" href="/static/css/ui-lightness/jquery-ui-1.8.20.custom.css">
-<link rel="stylesheet" href="/static/css/styling.css">
-<script type="text/javascript" src="/static/js/jquery-1.7.2.min.js"></script>
-<script type="text/javascript" src="/static/js/jquery-ui-1.8.20.custom.min.js"></script>
-<script type="text/javascript" src="/static/js/main.js"></script>
