@@ -176,6 +176,7 @@ class UserSetupHandler(webapp2.RequestHandler):
             Picture(owner=user, title="Ginger kitten", caption="Ginger kitten", full_size_image='http://' + self.request.host + '/static/img/kitten3.jpg')
         ]
         db.put(pictures)
+        self.redirect('/')
 
 
 class MainHandler(webapp2.RequestHandler):
@@ -233,4 +234,5 @@ app = webapp2.WSGIApplication([
         Route('/schedule/<schedulekey>', ScheduleApiHandler),
         Route('/schedule/<schedulekey>/<placementkey>', ApiPlacementHandler),
         ('/picture', PictureAdminHandler),
+        ('/setup', UserSetupHandler)
     ], debug=True)
