@@ -16,7 +16,7 @@ handlers:
   script: main.app
 
 builtins:
-- default: on
+- appstats: on
 - remote_api: on
 
 libraries:
