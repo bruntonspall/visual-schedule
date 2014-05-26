@@ -1,47 +1,17 @@
-<html>
-<head>
-	<title>iPad Test</title>
-	<link rel="stylesheet" href="/static/css/html5reset.css">
-	<link rel="stylesheet" href="/static/css/bootstrap.min.css">
-	<link rel="stylesheet" href="/static/css/styling.css">
-
-	<script type="text/javascript" src="/static/js/jquery-1.7.2.min.js"></script>
-	<script type="text/javascript" src="/static/js/jquery-ui-1.8.20.custom.min.js"></script>
-	<script type="text/javascript" src="/static/js/main.js"></script>
-
-</head>
-<body data-schedule={{schedule.key()}}>
-	<div id="container">
-		<div class="navbar">
-			<div class="navbar-inner">
-				<ul class="nav">
-					<li class="active"><a href="#">Schedule</a></li>
-					<li><a href="/picture">Library</a></li>
-					<li><a href="{{logout_url}}">Log out</a></li>
-				</ul>
-			</div>
-		</div>
-		<div class="row">
-			<div class="span2">
-				<div class="picturebar">
-					{% for picture in library %}
-					<img class="picture img-polaroid" src="{{picture.full_size_image}}" width="160" data-key="{{picture.key()}}" data-type="picture">
-					{% endfor %}
-					<img src="http://placekitten.com/g/160/158" alt="placeholder+image">
-					<img src="http://placekitten.com/g/160/159" alt="placeholder+image">
-					<img src="http://placekitten.com/g/160/160" alt="placeholder+image">
-				</div>
-			</div><div class="schedule span10">
-				{% for placement in schedule.pictures %}
-					<img class="picture img-polaroid" src="{{placement.picture.full_size_image}}" width="160" data-key="{{placement.key()}}" data-type="placement">
-				{% endfor %}
-			</div>
-		</div>
-		<div class="alert msgs span8 push 4">
-      <a class="close" data-dismiss="alert">×</a>
-      <span>
-        <b>Warning!</b>Alerts may warn users of impending danger.</span>
-    </div>
-		</div>
+{% extends "base.html" %}
+{% set page = "schedule" %}
+{% block title %}Setup your schedule{% endblock %}
+{% block body %}
+<div class="row">
+	<div class="col-md-2 picturebar" id="picturebar">
+		{% for picture in library %}
+		<img class="picture img-polaroid" src="{{picture.full_size_image}}" width="160" data-key="{{picture.key()}}" data-type="picture">
+		{% endfor %}
 	</div>
-</body>
+	<div class="col-md-10 schedule" id="schedule" data-schedule="{{schedule.key()}}">
+		{% for placement in schedule.pictures %}
+			<img class="picture img-polaroid" src="{{placement.picture.full_size_image}}" width="160" data-key="{{placement.key()}}" data-type="placement">
+		{% endfor %}
+	</div>
+</div>
+{% endblock %}

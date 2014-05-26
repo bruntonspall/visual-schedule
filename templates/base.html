@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+  <link rel="stylesheet" href="/static/css/styling.css">
+  {% block styles %}
+  {% endblock %}
+<title>{% block title %}iPad Test{% endblock %}</title>
+
+{% block scripts %}
+  <script type="text/javascript" src="/static/js/jquery-1.7.2.min.js"></script>
+  <script type="text/javascript" src="/static/js/jquery-ui-1.8.20.custom.min.js"></script>
+  <script type="text/javascript" src="/js/bootstrap.min.js"></script>
+  <script type="text/javascript" src="/static/js/main.js"></script>
+  {% endblock %}
+
+</head>
+<body>
+  <div class="container">
+    {% block menu %}
+    <nav class="row navbar navbar-default" role="navigation">
+      <div class="navbar-header">
+        <a class="navbar-brand" href="#">Visual Schedule</a>
+      </div>
+      <div class="">
+        <ul class="nav navbar-nav">
+          <li class="{% if page == "schedule" %}pure-menu-selected{%endif%}"><a href="/">Schedule</a></li>
+          <li class="{% if page == "library" %}pure-menu-selected{%endif%}"><a href="/picture">Library</a></li>
+          <li><a href="/display">View Schedule</a></li>
+          <li><a href="{{logout_url}}">Log out</a></li>
+          {% block menuitems %}{% endblock %}
+        </ul>
+      </div>
+    </nav>
+    {% endblock menu %}
+    {% block body %}
+    {% endblock %}
+  </div>
+</body>
