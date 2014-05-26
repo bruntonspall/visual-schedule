@@ -180,13 +180,11 @@ class UserSetupHandler(webapp2.RequestHandler):
 class MainHandler(webapp2.RequestHandler):
     @login_required
     def get(self):
-        logging.info(self.request.environ)
         if ipadRegex.search(self.request.environ["HTTP_USER_AGENT"]):
             self.redirect("/display")
 
         schedule = Schedule.get_for_user(self.user)
 
-        logging.info("Got request for /")
         template = jinj.get_template('index.html')
         self.response.out.write(template.render(
             {

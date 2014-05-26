@@ -14,7 +14,7 @@
 {% block scripts %}
   <script type="text/javascript" src="/static/js/jquery-1.7.2.min.js"></script>
   <script type="text/javascript" src="/static/js/jquery-ui-1.8.20.custom.min.js"></script>
-  <script type="text/javascript" src="/js/bootstrap.min.js"></script>
+  <script type="text/javascript" src="/static/js/bootstrap.min.js"></script>
   <script type="text/javascript" src="/static/js/main.js"></script>
   {% endblock %}
 
@@ -28,8 +28,8 @@
       </div>
       <div class="">
         <ul class="nav navbar-nav">
-          <li class="{% if page == "schedule" %}pure-menu-selected{%endif%}"><a href="/">Schedule</a></li>
-          <li class="{% if page == "library" %}pure-menu-selected{%endif%}"><a href="/picture">Library</a></li>
+          <li class="{% if page == "schedule" %}active{%endif%}"><a href="/">Edit Schedule</a></li>
+          <li class="{% if page == "library" %}active{%endif%}"><a href="/picture">Manage Library</a></li>
           <li><a href="/display">View Schedule</a></li>
           <li><a href="{{logout_url}}">Log out</a></li>
           {% block menuitems %}{% endblock %}
