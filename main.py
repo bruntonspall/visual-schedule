@@ -5,8 +5,6 @@ from google.appengine.ext import blobstore
 from google.appengine.ext import db
 from google.appengine.api import images
 from google.appengine.ext.webapp import blobstore_handlers
-
-
 import logging
 import jinja2
 import webapp2
